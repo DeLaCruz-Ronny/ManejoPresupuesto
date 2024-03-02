@@ -1,0 +1,84 @@
+﻿@model IEnumerable<TipoCuenta>
+
+@{
+    ViewData["Title"] = "Tipos Cuentas";
+}
+
+<h1>Tipos de Cuenta</h1>
+<h5>
+    El tipo de cuenta se refiere a como podemos agrupar cuentas.
+    Ejemplo: Prestamos, Tarjetas de credito, etc.
+</h5>
+
+<a asp-action="Crear" class="btn btn-primary">Crear Nuevo</a>
+
+<table class="table table-striped table-responsive">
+    <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Accion</th>
+        </tr>
+    </thead>
+    <tbody id="reordenable">
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    <input type="hidden" value="@item.Id" class="ids"/>
+                    <a class="btn btn-primary" asp-action="Editar" asp-route-id="@item.Id">Editar</a> |
+                    <a class="btn btn-danger" asp-action="Borrar" asp-route-id="@item.Id">Borrar</a>
+                </td>
+                <td>
+                    @item.Nombre
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts{
+    <script>
+
+        const urlOrdenar = '@Url.Action("ordenar")';
+
+        $(function() {
+            // $("#reordenable").sortable({
+            //     stop: async function (e, ui) {
+            //         await actualizarOrdenes();
+            //     }
+            // });
+
+            $("#reordenable").sortable({
+                stop: async function (e, ui) {
+                    await actualizarOrdenes();
+                }
+            }); // faltaba un }
+            //}); // <-- esta linea sobra
+
+            async function actualizarOrdenes() {
+                const ids = obtenerIdsDeElementos();
+                await enviarIdsAlBackend(ids);
+            }
+
+            function obtenerIdsDeElementos(){
+                const ids = $(".ids").map(function () {
+                    return $(this).val();
+                }).get();
+
+                return ids;
+            }
+
+            async function enviarIdsAlBackend(ids) {
+                var data = JSON.stringify(ids);
+
+                await fetch(urlOrdenar, {
+                    method; 'POST',
+                    body: data,
+                    headers: {
+                        'Content-type': 'application/json'
+                    }
+                });
+            }
+        })
+    </script>
+}
